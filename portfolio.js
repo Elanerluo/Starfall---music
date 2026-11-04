@@ -1,0 +1,76 @@
+window.renderPortfolio=()=>{
+window.unmountWorkVideo?.();window.unmountWorkVideo=null;
+window.unmountScoreReader?.();
+window.restoreCatalogView=null;
+window.unmountCatalogSelects?.();
+const works=window.portfolioWorks||[];
+const {byTitle,byNewest,byOldest,formatDate}=window.portfolioWorkOrder;
+const categories=['歌曲','艺术歌曲','合唱作品','纯音乐','器乐作品','室内乐','管弦乐','电子音乐','影视配乐','其他'];
+const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const detailURL=work=>'work.html?id='+encodeURIComponent(work.id);
+function playable(value){try{return !!value&&['http:','https:'].includes(new URL(value,location.href).protocol);}catch{return false;}}
+function row(work,index){return `<div class="catalog-item"><a class="catalog-row" href="${detailURL(work)}" data-work-id="${escapeHTML(work.id)}"><span class="catalog-number">${String(index+1).padStart(2,'0')}</span><span class="catalog-title">${escapeHTML(work.title)}<small>${escapeHTML(work.instrumentation||'')}</small></span><span class="catalog-category">${escapeHTML(work.category||'其他')}</span><span class="catalog-year">${escapeHTML(formatDate(work))}</span><span class="catalog-duration">${escapeHTML(work.duration||'—')}</span><span aria-hidden="true">↗</span></a>${playable(work.audio)?`<button class="catalog-play" data-play-work="${escapeHTML(work.id)}" data-work-title="${escapeHTML(work.title)}" aria-label="播放${escapeHTML(work.title)}">▷</button>`:''}</div>`;}
+const selected=document.querySelector('#selected-list');
+if(selected){const featured=works.filter(work=>work.selected).sort(byNewest).slice(0,6);selected.innerHTML=featured.length?featured.map(row).join(''):'<div class="empty-state"><span class="empty-symbol" aria-hidden="true">≈</span><h3>留一片天地，给即将到来的声音。</h3><p>代表作品待收录，未来将在这里精选呈现。</p></div>';}
+const library=document.querySelector('#catalog-list');let restoredCatalog=false;
+if(library){const search=document.querySelector('#work-search'),category=document.querySelector('#category-filter'),year=document.querySelector('#year-filter'),sort=document.querySelector('#sort-filter');
+categories.forEach(value=>category.add(new Option(value,value)));
+const note=document.querySelector('.library-note>p');if(note&&works.length)note.textContent='每部作品的录音、影像与乐谱集中呈现。更多作品陆续收录中。';
+[...new Set(works.map(work=>work.year).filter(Boolean))].sort((a,b)=>b-a).forEach(value=>year.add(new Option(value,value)));
+function render(){const query=search.value.trim().toLocaleLowerCase();let filtered=works.filter(work=>(!category.value||work.category===category.value)&&(!year.value||String(work.year)===year.value)&&(!query||[work.title,work.instrumentation,work.description].join(' ').toLocaleLowerCase().includes(query)));filtered.sort(sort.value==='title'?byTitle:sort.value==='oldest'?byOldest:byNewest);document.querySelector('#result-count').textContent=`${filtered.length} / ${works.length} 部作品`;library.innerHTML=filtered.length?filtered.map(row).join(''):`<div class="empty-state"><span class="empty-symbol" aria-hidden="true">≈</span><h2>${works.length?'没有找到匹配的作品':'作品陆续收录中'}</h2><p>${works.length?'试试其他关键词，或重置筛选。':'完整作品目录将在这里展开，录音、影像与乐谱归于每一部作品。'}</p></div>`;}
+[search,category,year,sort].forEach(control=>control.addEventListener('input',()=>{render();window.syncCatalogSelects?.();window.decorateMotionIcons?.(library);window.sitePlayer?.sync();window.catalogView?.capture();}));document.querySelector('#reset-filters').addEventListener('click',()=>{search.value='';category.value='';year.value='';sort.value='newest';render();window.syncCatalogSelects?.();window.decorateMotionIcons?.(library);window.sitePlayer?.sync();window.catalogView?.capture();});
+window.restoreCatalogView=()=>{window.catalogView?.restoreControls();render();window.syncCatalogSelects?.();window.decorateMotionIcons?.(library);window.sitePlayer?.sync();return window.catalogView?.restoreScroll()||false;};
+restoredCatalog=window.restoreCatalogView();window.enhanceCatalogSelects?.(document.querySelector('.catalog-controls'));}
+const detail=document.querySelector('#work-detail');
+if(detail){const params=new URLSearchParams(location.search),preview=params.get('preview')==='1',work=works.find(item=>item.id===params.get('id'));
+if(!preview&&!work){detail.innerHTML='<div class="empty-state"><h1>暂未收录这部作品</h1><p>你可以返回作品库，浏览其他作品。</p><a class="text-link" href="works.html">返回完整作品库 ↗</a></div>';}
+else {
+ const item=work||{title:'作品详情预览',category:'待补充',year:'—',instrumentation:'待补充',duration:'—'};
+ function safeURL(value){if(!value)return null;try{const parsed=new URL(value,location.href);return ['http:','https:'].includes(parsed.protocol)?parsed.href:null;}catch{return null;}}
+ const media={audio:safeURL(item.audio),video:safeURL(item.video),score:safeURL(item.score),image:safeURL(item.image)};
+ const hasMedia=!!(media.audio||media.video||media.score);
+ const mediaTitle=media.audio&&media.video?'聆听与观看':media.audio?'聆听':media.video?'观看':'阅读';
+ const audioBlock=media.audio?'<div id="audio-area"><span class="media-label">01 / 录音</span></div>':'';
+ const videoBlock=media.video?'<div id="video-area"><span class="media-label">02 / 影像</span></div>':'';
+ const scoreLink=media.score?'<a class="score-jump" href="#score-reader">阅读乐谱 ↓</a>':'';
+ const imageLink=media.image?'<a class="archive-jump" href="#other-info">查看创作手稿 ↓</a>':'';
+ const mediaBlock=hasMedia?`<div class="detail-media"><h2>${mediaTitle}</h2>${audioBlock}${videoBlock}${scoreLink}${imageLink}</div>`:'';
+ const scoreBlock=media.score?'<section id="score-reader" class="score-section" aria-label="作品乐谱"></section>':'';
+ const extrasBlock=media.image||item.imageCaption?`<section class="work-archive" id="other-info" aria-labelledby="other-info-title"><p class="eyebrow">NOTES & ORIGINS</p><h2 id="other-info-title">其他信息</h2><div class="archive-grid">${media.image?`<figure><button type="button" class="archive-preview" id="manuscript-open" aria-label="放大查看创作手稿"><img src="${escapeHTML(media.image)}" alt="${escapeHTML(item.title)}的创作手稿" loading="lazy" decoding="async"></button><figcaption>点击查看大图 ↗</figcaption></figure>`:''}<div class="archive-copy">${media.image?'<h3>创作手稿</h3>':''}${item.imageCaption?`<p>${escapeHTML(item.imageCaption)}</p>`:''}</div></div>${media.image?`<dialog class="archive-dialog" id="manuscript-dialog" aria-label="创作手稿大图"><header><span>创作手稿 / ${escapeHTML(item.title)}</span><button type="button" id="manuscript-close" aria-label="关闭手稿大图">×</button></header><img src="${escapeHTML(media.image)}" alt="${escapeHTML(item.title)}的创作手稿大图" loading="lazy" decoding="async"></dialog>`:''}</section>`:'';
+ document.title=item.title+' — 罗挺';
+ detail.innerHTML=`${preview?'<p class="preview-notice">页面结构预览 · 非真实作品</p>':''}<p class="eyebrow">COMPOSITION / LUO TING</p><h1 class="detail-title">${escapeHTML(item.title)}</h1><dl class="detail-meta"><div><dt>作品类型</dt><dd>${escapeHTML(item.category||'—')}</dd></div><div><dt>创作时间</dt><dd>${escapeHTML(formatDate(item))}</dd></div><div><dt>编制</dt><dd>${escapeHTML(item.instrumentation||'—')}</dd></div><div><dt>时长</dt><dd>${escapeHTML(item.duration||'—')}</dd></div></dl><div class="detail-grid${hasMedia?'':' detail-grid--text-only'}"><div class="detail-description"><p class="eyebrow">ABOUT THE WORK</p><h2>创作说明</h2><p>${escapeHTML(item.description||'创作背景、音乐构思与作品说明待补充。')}</p></div>${mediaBlock}</div>${scoreBlock}${extrasBlock}<a class="text-link" href="works.html">← 返回完整作品库</a>`;
+ if(media.audio){
+  const versions=Array.isArray(item.audioVersions)?item.audioVersions.filter(version=>safeURL(version.audio)):[];
+  if(versions.length>1){
+   const area=document.querySelector('#audio-area');
+   area.className='audio-versions';
+   versions.forEach((version,index)=>{
+    const row=document.createElement('div');row.className='recording-version';
+    const caption=document.createElement('div');caption.className='recording-caption';
+    const name=document.createElement('span');name.textContent=version.label||'版本 '+(index+1);
+    const note=document.createElement('small');note.textContent=[index===0?'默认版本':'',version.duration].filter(Boolean).join(' · ');caption.append(name,note);
+    const play=document.createElement('button');play.className='work-play';play.dataset.playWork=item.id;play.dataset.playVersion=version.id;play.dataset.workTitle=item.title+' · '+name.textContent;play.textContent='▷';play.setAttribute('aria-label','播放'+play.dataset.workTitle);play.setAttribute('aria-pressed','false');
+    row.append(caption,play);area.append(row);
+   });
+  }else{
+  const button=document.createElement('button');button.className='work-play';button.dataset.playWork=item.id;button.dataset.workTitle=item.title;button.textContent='▷';button.setAttribute('aria-label','播放'+item.title);
+  document.querySelector('#audio-area').append(button,document.createTextNode(' 在全站播放器中聆听'));
+  }
+ }
+ if(media.video){
+  const video=document.createElement('video');video.controls=true;video.setAttribute('controlslist','nodownload');video.preload='metadata';video.src=media.video;video.setAttribute('aria-label',item.title+'影像');const area=document.querySelector('#video-area');area.append(video);window.unmountWorkVideo=window.enhanceWorkVideo?.(video,area,item.title);
+ }
+ if(media.score)window.mountScoreReader?.(document.querySelector('#score-reader'),{url:media.score,title:item.title,demo:item.scoreDemo===true});
+ if(media.image){
+  const dialog=document.querySelector('#manuscript-dialog');
+  document.querySelector('#manuscript-open').addEventListener('click',()=>dialog.showModal());
+  document.querySelector('#manuscript-close').addEventListener('click',()=>dialog.close());
+  dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close();});
+ }
+}}
+
+
+window.decorateMotionIcons?.();
+return {restoredCatalog};
+};
+window.renderPortfolio();

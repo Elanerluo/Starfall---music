@@ -1,0 +1,39 @@
+/* Use quiet focus feedback throughout the public site, without rectangular rings. */
+body :is(a,button,input,select,textarea,[tabindex]):focus{outline:none!important;outline-width:0!important;outline-offset:0!important}
+body .waveform-wrap:focus-within,body .volume-waveform:focus-within{outline:none!important;box-shadow:none!important}
+body :is(a,button,input,select,textarea,[tabindex]){-webkit-tap-highlight-color:transparent}
+a:focus-visible{text-decoration:underline;text-underline-offset:4px}
+.catalog-row:focus-visible{text-decoration:none;background:#597f830b}
+button:focus-visible{background-color:#597f8312}
+.score-toolbar button:focus-visible{background:var(--score-hover)}
+.work-video-control:focus-visible{background:#ffffff24}
+.catalog-controls input:focus{border-bottom-color:#597f83;box-shadow:none}
+.catalog-controls .catalog-filter{display:grid;gap:10px;min-width:115px}
+.catalog-controls .catalog-filter label{display:block;line-height:normal}
+.catalog-controls .catalog-filter--sort{min-width:158px}
+.catalog-select{position:relative;min-width:0}
+.catalog-select select[hidden]{display:none!important}
+.catalog-select-trigger{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:43px;padding:12px 4px;border:0;border-bottom:1px solid #87938b70;border-radius:0;background:transparent;color:#283234;text-align:left;font:inherit;font-size:12px;cursor:pointer;transition:border-color .2s,color .2s}
+.catalog-select-trigger:hover,.catalog-select-trigger:focus-visible,.catalog-select-trigger[aria-expanded=true]{background:transparent;border-bottom-color:#597f83;color:#3c7277}
+.catalog-select-trigger>svg{width:13px;height:13px;flex:none;transition:transform .18s ease}
+.catalog-select-trigger[aria-expanded=true]>svg{transform:rotate(180deg)}
+.catalog-select-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.catalog-select-menu{position:fixed;z-index:65;margin:0;padding:5px 0;overflow-y:auto;overscroll-behavior:contain;border:0;border-radius:0;background:transparent;color:#283234;box-shadow:none;scrollbar-width:none;font:inherit;font-size:12px;letter-spacing:.2px;user-select:none}
+.catalog-select-menu::-webkit-scrollbar{display:none;width:0;height:0}
+.catalog-select-menu[hidden]{display:none}
+.catalog-select-option{display:grid;position:relative;min-height:37px;margin:0;padding:0;border:0;border-radius:0;cursor:pointer;white-space:nowrap;line-height:1.6}
+/* Animate the surface; keep each option's hit area still so hover cannot flicker. */
+.catalog-select-option-surface{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:9px 11px;background:#e9eeea;pointer-events:none;transform:translate3d(0,0,0);transition:transform .36s cubic-bezier(.22,1,.36,1),background-color .24s ease,color .24s ease!important;will-change:transform}
+.catalog-select-option-surface>svg{width:14px;height:14px;flex:none;opacity:0}
+.catalog-select-option.is-active>.catalog-select-option-surface{background:#dfe8e2}
+.catalog-select-option.is-selected>.catalog-select-option-surface{background:#dfe8e2;color:#3c7277}
+.catalog-select-option.is-selected>.catalog-select-option-surface>svg{opacity:1}
+.catalog-select-option[aria-disabled=true]{opacity:.35;cursor:default}
+@media(hover:hover) and (pointer:fine){
+ .catalog-select-menu:has(>.catalog-select-option:hover:not([aria-disabled=true]))>.catalog-select-option:has(~.catalog-select-option:hover:not([aria-disabled=true]))>.catalog-select-option-surface{transform:translate3d(0,-4px,0)}
+ .catalog-select-option:hover:not([aria-disabled=true])~.catalog-select-option>.catalog-select-option-surface{transform:translate3d(0,4px,0)}
+ .catalog-select-option:hover:not([aria-disabled=true])>.catalog-select-option-surface{background:#d6e2da;color:#3c7277}
+}
+@media(max-width:760px){.catalog-controls .catalog-filter{flex:1;min-width:85px}.catalog-controls .catalog-filter--sort{min-width:100px}.catalog-select-trigger{font-size:10px;gap:8px}.catalog-select-menu{font-size:11px}}
+/* Keep this requested 4px interaction continuous, with a shorter reduced-motion transition. */
+@media(prefers-reduced-motion:reduce){.catalog-select-trigger,.catalog-select-trigger>svg{transition:none}.catalog-select-option-surface{transition:transform .24s cubic-bezier(.22,1,.36,1),background-color .18s ease,color .18s ease!important}}
