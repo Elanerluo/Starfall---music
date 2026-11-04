@@ -1,0 +1,44 @@
+/* The visitor's time-of-day theme also colors the full page around the music and score. */
+:root,html[data-theme=dawn]{--site-bg:#f4f1e9;--site-panel:#faf7f0;--site-soft:#eaeade;--site-intro:#e5e6d9;--site-ink:#303c39;--site-muted:#74837a;--site-line:#788b7d40;--site-accent:#607f70;--site-hover:#607f7010;--site-menu:#e6eade;--site-selected:#d9e2d5;--site-highlight:#d1ddcc;--site-hero-ink:#31443d;--site-landscape-filter:brightness(1.02) saturate(.9)}
+html[data-theme=day]{--site-bg:#eff5f7;--site-panel:#f7fafb;--site-soft:#e4edf0;--site-intro:#dce9ed;--site-ink:#293e4a;--site-muted:#708b98;--site-line:#7898a640;--site-accent:#397f91;--site-hover:#397f9110;--site-menu:#e1ecef;--site-selected:#d2e4e9;--site-highlight:#c8dfe6;--site-hero-ink:#284554;--site-landscape-filter:brightness(1.08) saturate(.78)}
+html[data-theme=dusk]{--site-bg:#eee6e5;--site-panel:#f6efed;--site-soft:#e5d9dd;--site-intro:#dbcdd3;--site-ink:#4c3e4b;--site-muted:#927e89;--site-line:#9d7e9045;--site-accent:#966b80;--site-hover:#966b8012;--site-menu:#e7dade;--site-selected:#ddcbd3;--site-highlight:#d5bfca;--site-hero-ink:#faece8;--site-landscape-filter:brightness(.76) saturate(1.05) sepia(.15)}
+html[data-theme=night]{--site-bg:#14222d;--site-panel:#1b2c38;--site-soft:#192934;--site-intro:#1e303c;--site-ink:#d7e4e8;--site-muted:#91a9b4;--site-line:#819eae38;--site-accent:#94c3ce;--site-hover:#94c3ce12;--site-menu:#223742;--site-selected:#2b4550;--site-highlight:#34535f;--site-hero-ink:#edf0f2;--site-landscape-filter:brightness(.47) saturate(.55) hue-rotate(170deg)}
+html[data-theme]{--score-surface:var(--site-panel);--score-stage:var(--site-soft);--score-ink:var(--site-ink);--score-muted:var(--site-muted);--score-line:var(--site-line);--score-accent:var(--site-accent);--score-hover:var(--site-hover)}
+html[data-theme] body{background:var(--site-bg);color:var(--site-ink);transition:background-color .7s,color .45s}
+html[data-theme] .landscape{filter:var(--site-landscape-filter)}
+html[data-theme] body:not(.inner-page) .site-header,html[data-theme] .hero-topline{color:var(--site-hero-ink)}
+html[data-theme] .inner-page .site-header{background:var(--site-bg);color:var(--site-ink);border-color:var(--site-line)}
+html[data-theme] .inner-page .theme-toggle{display:inline-flex}
+html[data-theme] .brand-en,html[data-theme] .inner-page nav a[aria-current]{border-color:var(--site-line)}
+html[data-theme] .about,html[data-theme] footer,html[data-theme] .inner-page footer{background:var(--site-soft);color:var(--site-ink)}
+html[data-theme] .page-intro{background:var(--site-intro)}
+html[data-theme] .page-intro:before{background:linear-gradient(90deg,var(--site-intro),transparent),url('assets/horizon-v2.webp') center 55%/cover;filter:var(--site-landscape-filter)}
+html[data-theme] .page-intro>p:last-child,html[data-theme] .breadcrumbs,html[data-theme] .section p,html[data-theme] .section small,html[data-theme] .section-kicker,html[data-theme] .content-note,html[data-theme] .draft-label,html[data-theme] .work-number,html[data-theme] .work-status{color:var(--site-muted)}
+html[data-theme] .catalog-row,html[data-theme] .work-row{color:var(--site-ink)}
+html[data-theme] .catalog-row,html[data-theme] .catalog-table-head,html[data-theme] .work-row,html[data-theme] .works-toolbar,html[data-theme] .section-kicker,html[data-theme] .detail-meta,html[data-theme] .detail-media>div,html[data-theme] .work-archive,html[data-theme] .empty-state,html[data-theme] .contact-links a,html[data-theme] .text-link{border-color:var(--site-line)}
+html[data-theme] .catalog-row:hover,html[data-theme] .catalog-row:focus-visible,html[data-theme] .work-row:hover{background:var(--site-hover)}
+html[data-theme] .catalog-number,html[data-theme] .catalog-category,html[data-theme] .catalog-year,html[data-theme] .catalog-duration,html[data-theme] .catalog-title small,html[data-theme] .catalog-summary,html[data-theme] .catalog-table-head,html[data-theme] .detail-meta dt,html[data-theme] .detail-description>p:last-child,html[data-theme] .library-note>p,html[data-theme] .preview-link,html[data-theme] .recording-version-meta,html[data-theme] .archive-copy p,html[data-theme] .archive-grid figcaption{color:var(--site-muted)}
+html[data-theme] .catalog-controls label{color:var(--site-muted)}
+html[data-theme] .catalog-controls input,html[data-theme] .catalog-select-trigger{color:var(--site-ink);border-bottom-color:var(--site-line)}
+html[data-theme] .catalog-controls input::placeholder{color:var(--site-muted);opacity:1}
+html[data-theme] .catalog-controls input:focus,html[data-theme] .catalog-select-trigger:hover,html[data-theme] .catalog-select-trigger:focus-visible,html[data-theme] .catalog-select-trigger[aria-expanded=true]{color:var(--site-accent);border-bottom-color:var(--site-accent)}
+html[data-theme] .search-field>.ui-icon{color:var(--site-muted)}
+html[data-theme] .catalog-select-menu{color:var(--site-ink)}
+html[data-theme] .catalog-select-option-surface{background:var(--site-menu)}
+html[data-theme] .catalog-select-option:is(.is-active,.is-selected)>.catalog-select-option-surface{background:var(--site-selected);color:var(--site-accent)}
+html[data-theme] .catalog-select-option:hover:not([aria-disabled=true])>.catalog-select-option-surface{background:var(--site-highlight);color:var(--site-accent)}
+html[data-theme] .catalog-play{border-color:var(--site-line);color:var(--site-ink)}
+html[data-theme] .work-play,html[data-theme] .detail-media .score-jump,html[data-theme] .filters button.active{color:var(--site-accent)}
+html[data-theme] .filters button{color:var(--site-muted)}
+html[data-theme] .filters button.active:after{background:var(--site-accent)}
+html[data-theme] .reset-filters{border-bottom-color:var(--site-line)}
+html[data-theme] .score-heading{color:var(--site-ink)}
+html[data-theme] .score-heading .eyebrow,html[data-theme] .score-heading>p{color:var(--site-muted)}
+html[data-theme] .persistent-player{--player-wave-active:var(--site-accent);--player-wave-cursor:var(--site-accent);background:var(--site-panel);border-color:var(--site-line);color:var(--site-ink)}
+html[data-theme] .player-track p,html[data-theme] .player-time,html[data-theme] .player-controls button,html[data-theme] .player-extra button{color:var(--site-muted)}
+html[data-theme] .persistent-player button:hover:not(:disabled){color:var(--site-accent);background:var(--site-hover)}
+html[data-theme] .persistent-player[data-playing=true] .player-signal,html[data-theme] .queue-list button[aria-current=true]{color:var(--site-accent)}
+html[data-theme] .player-queue,html[data-theme] .volume-value{background:var(--site-panel);color:var(--site-ink);border-color:var(--site-line)}
+html[data-theme] .volume-wave-fill{stroke:var(--site-accent)}
+html[data-theme] .archive-dialog,html[data-theme] .archive-dialog header{background:var(--site-panel);color:var(--site-ink)}
+@media(max-width:760px){html[data-theme] .inner-page .site-header{gap:12px;padding-inline:5%}html[data-theme] .inner-page .theme-toggle{min-width:22px}html[data-theme] .inner-page .theme-toggle .theme-label{display:none}}

@@ -13,7 +13,7 @@ const backgroundTrack=hasBackground?allTracks.find(track=>track.workId===String(
 const backgroundTracks=hasBackground?(backgroundTrack?[backgroundTrack]:[]):null;
 let tracks=backgroundTracks||allTracks;
 const DEFAULT_VOLUME=.4;
-const audio=document.createElement('audio');audio.id='site-audio';audio.preload='metadata';audio.controls=false;audio.setAttribute('controlslist','nodownload');
+const audio=document.createElement('audio');audio.id='site-audio';audio.preload='auto';audio.controls=false;audio.setAttribute('controlslist','nodownload');
 const bar=document.createElement('aside');bar.className='persistent-player';bar.setAttribute('aria-label','全站音乐播放器');
 bar.innerHTML=`<div class="player-track"><span class="player-art" aria-hidden="true">≈</span><div><h2 id="player-title">作品录音待收录</h2><p id="player-subtitle">LUO TING / 山海之间</p></div></div><div class="player-controls"><button id="player-prev" aria-label="上一首">Ⅰ‹</button><button id="player-toggle" class="player-toggle" aria-label="播放">▷</button><button id="player-next" aria-label="下一首">›Ⅰ</button></div><div class="player-timeline"><span class="player-time" id="player-elapsed">00:00</span><label class="player-sr" for="player-progress">播放进度</label><input id="player-progress" class="player-progress" type="range" min="0" max="1000" value="0" step="1"><span class="player-time" id="player-duration">00:00</span></div><div class="player-extra"><button id="player-mute" aria-label="静音" aria-pressed="false">♫</button><label class="player-sr" for="player-volume">音量</label><input class="player-volume" id="player-volume" type="range" min="0" max="1" step="0.01" value="${DEFAULT_VOLUME}"><button id="player-queue-toggle" aria-label="播放列表" aria-expanded="false" aria-controls="player-queue">☷</button></div><p class="player-message" role="status" aria-live="polite"></p><section class="player-queue" id="player-queue" aria-label="播放列表" hidden><div class="queue-heading"><span>播放列表 / <span id="queue-count"></span></span><button id="queue-close" aria-label="关闭播放列表">×</button></div><div class="queue-list"></div></section>`;
 document.body.append(audio,bar);
@@ -31,7 +31,8 @@ bar.querySelector('#player-volume').outerHTML=`<span class="volume-waveform"><sv
 for(const [id,name] of [['player-prev','previous'],['player-next','next'],['player-queue-toggle','queue'],['queue-close','close']])bar.querySelector('#'+id).innerHTML=icon(name);
 const waveform=window.createAudioWaveform(document.getElementById('player-waveform'),document.getElementById('waveform-status'));
 const get=id=>document.getElementById(id),toggle=get('player-toggle'),previous=get('player-prev'),next=get('player-next'),progress=get('player-progress'),volume=get('player-volume'),queue=get('player-queue'),queueToggle=get('player-queue-toggle'),message=bar.querySelector('.player-message');
-let index=-1,lastAudibleVolume=DEFAULT_VOLUME,pendingAutoplay=false,playAttempt=0;
+let index=-1,lastAudibleVolume=DEFAULT_VOLUME,pendingAutoplay=false,playAttempt=0,autoplayTimer=0;
+function cancelAutoplay(){clearTimeout(autoplayTimer);autoplayTimer=0;pendingAutoplay=false;}
 const playbackModes=[{id:'random',label:'随机播放',drawing:'<path d="M3 7h3c4 0 5 10 9 10h6m-4-4 4 4-4 4M3 17h3c1.3 0 2.5-1.1 3.6-2.6M14.4 9.6C15.6 8 17 7 19 7h2m-4-4 4 4-4 4"/>'},{id:'single',label:'单曲循环',drawing:'<path d="m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4m14-3v4a3 3 0 0 1-3 3H3m8-8 1-1v6m-1 0h2"/>'},{id:'sequence',label:'顺序播放',drawing:'<path d="M4 6h15m-4-3 4 3-4 3M4 12h12M4 18h15m-4-3 4 3-4 3"/>'}];
 let modeIndex=hasBackground?1:0,playHistory=[],historyCursor=-1;
 const modeButton=document.createElement('button');modeButton.id='player-mode';modeButton.className='player-mode';modeButton.type='button';modeButton.setAttribute('aria-describedby','player-mode-status');
@@ -63,7 +64,7 @@ function syncVolume(){
 const time=seconds=>{if(!Number.isFinite(seconds)||seconds<0)return '00:00';const n=Math.floor(seconds);return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');};
 function queueState(open){queue.hidden=!open;queueToggle.setAttribute('aria-expanded',String(open));}
 function sync(){const track=tracks[index],ready=Number.isFinite(audio.duration)&&audio.duration>0;toggle.disabled=!tracks.length;previous.disabled=!tracks.length;next.disabled=!tracks.length;volume.disabled=!tracks.length;get('player-mute').disabled=!tracks.length;progress.disabled=!track||!ready;get('player-title').textContent=track?.title||(tracks.length?'选择一部作品，开始聆听':hasBackground?'背景音乐暂不可用':'作品录音待收录');get('player-subtitle').textContent=track?[track.category,track.instrumentation].filter(Boolean).join(' / '):'LUO TING / 山海之间';toggle.innerHTML=icon(audio.paused?'play':'pause');bar.dataset.playing=String(!audio.paused);toggle.setAttribute('aria-label',audio.paused?'播放':'暂停');get('player-elapsed').textContent=time(audio.currentTime);get('player-duration').textContent=time(audio.duration);progress.value=ready?Math.round(audio.currentTime/audio.duration*1000):0;progress.setAttribute('aria-valuetext',time(audio.currentTime)+' / '+time(audio.duration));syncVolume();waveform.update(ready?audio.currentTime/audio.duration:0);bar.querySelectorAll('[data-queue-index]').forEach(button=>button.setAttribute('aria-current',String(Number(button.dataset.queueIndex)===index)));document.querySelectorAll('[data-play-work]').forEach(button=>{const sameVersion=button.dataset.playVersion?track?.versionId===button.dataset.playVersion:track?.isDefault;const active=track&&button.dataset.playWork===track.workId&&sameVersion&&!audio.paused;if(button.dataset.active!==String(!!active)||!button.querySelector('.ui-icon')){button.dataset.active=String(!!active);if(window.motionIcon)button.innerHTML=window.motionIcon(active?'equalizer':'play');else button.textContent=active?'Ⅱ':'▷';}button.setAttribute('aria-label',(active?'暂停':'播放')+(button.dataset.workTitle||''));if(button.dataset.playVersion)button.setAttribute('aria-pressed',String(!!active));});}
-async function start(automatic=false){const attempt=++playAttempt;pendingAutoplay=false;message.textContent='';if(audio.error)audio.load();try{await audio.play();}catch(error){if(attempt!==playAttempt)return;if(error.name!=='AbortError'){pendingAutoplay=automatic&&error.name==='NotAllowedError';message.textContent=error.name==='NotAllowedError'?(automatic?'轻触页面，开启背景音乐。':'请点击播放，开始聆听。'):'音频暂时无法播放，请稍后重试。';}}if(attempt===playAttempt)sync();}
+async function start(automatic=false){if(!automatic)cancelAutoplay();const attempt=++playAttempt;pendingAutoplay=false;message.textContent='';if(audio.error)audio.load();try{await audio.play();}catch(error){if(attempt!==playAttempt)return;if(error.name!=='AbortError'){pendingAutoplay=automatic&&error.name==='NotAllowedError';message.textContent=error.name==='NotAllowedError'?(automatic?'浏览器限制自动播放，点击播放开启背景音乐。':'请点击播放，开始聆听。'):'音频暂时无法播放，请稍后重试。';}}if(attempt===playAttempt)sync();}
 function rememberTrack(position){
  if(playHistory[historyCursor]===position)return;
  playHistory=playHistory.slice(0,historyCursor+1);playHistory.push(position);
@@ -76,7 +77,7 @@ function chooseTrack(track){
  selectTrack(tracks.findIndex(item=>item.id===track.id));
 }
 function stepTrack(direction){
- pendingAutoplay=false;if(!tracks.length)return;
+ cancelAutoplay();if(!tracks.length)return;
  if(playbackModes[modeIndex].id==='random'){
   if(direction<0){
    if(historyCursor>0){historyCursor--;selectTrack(playHistory[historyCursor],true,false,false);return;}
@@ -87,8 +88,8 @@ function stepTrack(direction){
  }
  selectTrack((index+direction+tracks.length)%tracks.length);
 }
-window.sitePlayer={play(id,versionId){pendingAutoplay=false;const track=allTracks.find(work=>work.workId===String(id)&&(versionId?work.versionId===String(versionId):work.isDefault));if(!track)return;if(tracks[index]?.id===track.id){if(audio.paused)start();else{playAttempt++;audio.pause();}}else chooseTrack(track);},sync};
-toggle.addEventListener('click',()=>{pendingAutoplay=false;if(index<0)selectTrack(0);else if(audio.paused)start();else{playAttempt++;audio.pause();}});
+window.sitePlayer={play(id,versionId){cancelAutoplay();const track=allTracks.find(work=>work.workId===String(id)&&(versionId?work.versionId===String(versionId):work.isDefault));if(!track)return;if(tracks[index]?.id===track.id){if(audio.paused)start();else{playAttempt++;audio.pause();}}else chooseTrack(track);},sync};
+toggle.addEventListener('click',()=>{cancelAutoplay();if(index<0)selectTrack(0);else if(audio.paused)start();else{playAttempt++;audio.pause();}});
 previous.addEventListener('click',()=>stepTrack(-1));next.addEventListener('click',()=>stepTrack(1));
 progress.addEventListener('input',()=>{if(Number.isFinite(audio.duration)&&audio.duration>0){audio.currentTime=Number(progress.value)/1000*audio.duration;sync();}});
 volume.addEventListener('input',()=>{audio.volume=Number(volume.value);if(audio.volume>0)audio.muted=false;sync();});
@@ -110,12 +111,12 @@ audio.addEventListener('timeupdate',sync);
 function randomTrack(except=-1){const count=tracks.length;if(count<=1)return count?0:-1;const pick=Math.floor(Math.random()*(count-(except>=0?1:0)));return except>=0&&pick>=except?pick+1:pick;}
 audio.addEventListener('ended',()=>{if(playbackModes[modeIndex].id==='single'){audio.currentTime=0;start();}else stepTrack(1);});
 audio.addEventListener('error',()=>{message.textContent='这段录音暂时无法加载，请重试或选择其他作品。';sync();});
-document.addEventListener('play',event=>{if(event.target instanceof HTMLVideoElement&&!event.target.hasAttribute('data-background-video')){pendingAutoplay=false;playAttempt++;message.textContent='';audio.pause();}if(event.target===audio)document.querySelectorAll('video:not([data-background-video])').forEach(video=>video.pause());},true);
+document.addEventListener('play',event=>{if(event.target instanceof HTMLVideoElement&&!event.target.hasAttribute('data-background-video')){cancelAutoplay();playAttempt++;message.textContent='';audio.pause();}if(event.target===audio)document.querySelectorAll('video:not([data-background-video])').forEach(video=>video.pause());},true);
 document.addEventListener('input',event=>{if(event.target.closest('main'))sync();});
 function resumeAutoplay(event){if(!pendingAutoplay||event.defaultPrevented||event.isTrusted===false)return;if(event.type==='keydown'&&!['Enter',' '].includes(event.key))return;if(event.target.closest('.persistent-player,.work-video-heading,.work-video-shell,[data-play-work],video,audio,input,textarea,select,[contenteditable]'))return;start(true);}
 document.addEventListener('click',resumeAutoplay,true);document.addEventListener('keydown',resumeAutoplay,true);
-audio.addEventListener('play',()=>{pendingAutoplay=false;});
-if(index<0&&tracks.length)selectTrack(randomTrack(),true,true);
+audio.addEventListener('play',cancelAutoplay);
+if(index<0&&tracks.length){selectTrack(randomTrack(),false);autoplayTimer=setTimeout(()=>{autoplayTimer=0;if(audio.paused)start(true);},5000);}
 sync();
 
 // Keep one audio element alive while replacing only the site's page content.
