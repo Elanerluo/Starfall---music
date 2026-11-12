@@ -1,0 +1,8 @@
+.catalog-subline{display:flex;align-items:center;flex-wrap:wrap;gap:5px 14px;margin-top:10px}
+.catalog-title .catalog-subline small{margin:0}
+.work-view-count{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:400;line-height:1.5;letter-spacing:0;color:var(--site-muted,#74837a);white-space:nowrap;font-variant-numeric:tabular-nums}
+.work-view-count svg{width:13px;height:13px;flex:none;opacity:.8}
+.work-view-count[data-state=error]{opacity:.65}
+.detail-description .work-view-count{float:none}
+#work-detail>.eyebrow>.work-view-count{float:right;margin-top:1px}
+@media(max-width:760px){.catalog-subline{gap:4px 10px}.work-view-count{font-size:9px}.work-view-count svg{width:12px;height:12px}}
