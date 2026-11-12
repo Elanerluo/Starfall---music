@@ -45,6 +45,7 @@ window.bindHomeControls=function(){
   applyTheme();
  };
  window.bindOcean?.();
+ window.mountPortraitGallery?.();
  const motionButton=document.querySelector('.motion-toggle');
  if(!motionButton)return;
  function setMotion(paused){body.classList.toggle('still',paused);motionButton.setAttribute('aria-pressed',String(paused));motionButton.querySelector('.motion-mark').textContent=paused?'▷':'Ⅱ';motionButton.querySelector('.motion-label').textContent=paused?'开启动效':'暂停动效';}

@@ -1,0 +1,16 @@
+.about-image.portrait-gallery{max-width:480px;--portrait-front:translate(-8px,10px) rotate(-2deg) scale(.98);--portrait-back:translate(18px,-14px) rotate(4deg) scale(.94)}
+.portrait-deck{position:relative;padding:24px 56px 16px}
+.portrait-stage{position:relative;width:100%;aspect-ratio:3/4;isolation:isolate}
+.portrait-card{position:absolute;inset:0;overflow:hidden;border-radius:2px;background:var(--site-panel,#faf7f0);box-shadow:0 16px 35px #14222d18;will-change:transform,opacity;backface-visibility:hidden}
+.portrait-card.is-front{z-index:2;opacity:1;transform:var(--portrait-front)}
+.portrait-card.is-back{z-index:1;opacity:.42;transform:var(--portrait-back)}
+.portrait-card img{display:block;width:100%;height:100%;aspect-ratio:3/4;object-fit:cover;object-position:center;user-select:none;pointer-events:none}
+.portrait-nav{position:absolute;z-index:3;top:50%;display:grid;place-items:center;width:44px;height:44px;padding:12px;border:1px solid var(--site-line,#788b7d40);border-radius:50%;background:var(--site-panel,#faf7f0);color:var(--site-accent,#607f70);transform:translateY(-50%);transition:background-color .25s,transform .25s,color .25s}
+.portrait-nav--previous{left:0}.portrait-nav--next{right:0}
+.portrait-nav svg{display:block;width:16px;height:16px;fill:currentColor}
+.portrait-nav:is(:hover,:focus-visible){background:var(--site-selected,#d9e2d5);transform:translateY(-50%) scale(1.06)}
+.portrait-nav:active{transform:translateY(-50%) scale(.95)}
+.portrait-gallery figcaption{display:flex;justify-content:space-between;gap:16px;margin:14px 56px 0;color:var(--site-muted,#74837a)}
+.portrait-position{letter-spacing:1px;font-variant-numeric:tabular-nums}
+.portrait-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:760px){.about-image.portrait-gallery{max-width:410px;--portrait-front:translate(-4px,6px) rotate(-2deg) scale(.98);--portrait-back:translate(12px,-10px) rotate(4deg) scale(.94)}.portrait-deck{padding:20px 42px 12px}.portrait-gallery figcaption{margin:14px 42px 0;font-size:8px;letter-spacing:1.3px}.portrait-position{letter-spacing:.5px}}
