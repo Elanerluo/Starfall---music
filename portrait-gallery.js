@@ -33,11 +33,13 @@
    apply(target);
    if(motion.matches||document.body.classList.contains('still')||typeof outgoing.animate!=='function'){finish();return;}
    root.dataset.animating='true';
-   const options={duration:260,easing:'ease-out'};
+   const travel=Math.min(root.querySelector('.portrait-stage').clientWidth*.2,80);
+   const outSide=`translate(${-direction*travel}px, 2px) rotate(${-direction*7}deg) scale(.94)`;
+   const inSide=`translate(${direction*travel*.4}px, -6px) rotate(${direction*2}deg) scale(.96)`;
+   const options={duration:680,easing:'cubic-bezier(.22,1,.36,1)'};
    animations=[
-    // Fade the old front away, then put it behind while it is invisible.
-    outgoing.animate([{transform:front,opacity:1,zIndex:3},{transform:front,opacity:0,zIndex:3,offset:.58},{transform:back,opacity:0,zIndex:1,offset:.6},{transform:back,opacity:.72,zIndex:1}],options),
-    incoming.animate([{transform:front,opacity:0,zIndex:2},{transform:front,opacity:1,zIndex:2}],options)
+    outgoing.animate([{transform:front,opacity:1,zIndex:2},{transform:outSide,opacity:.9,zIndex:2,offset:.43},{transform:outSide,opacity:.75,zIndex:1,offset:.52},{transform:back,opacity:.72,zIndex:1}],options),
+    incoming.animate([{transform:back,opacity:.72,zIndex:1},{transform:inSide,opacity:.82,zIndex:1,offset:.43},{transform:inSide,opacity:.9,zIndex:2,offset:.52},{transform:front,opacity:1,zIndex:2}],options)
    ];
    Promise.allSettled(animations.map(animation=>animation.finished)).then(finish);
   }
