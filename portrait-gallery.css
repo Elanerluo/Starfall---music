@@ -18,3 +18,16 @@
 .portrait-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(prefers-reduced-motion:reduce){.portrait-card::after{transition:none}}
 @media(max-width:760px){.about-image.portrait-gallery{max-width:410px;--portrait-front:translate(-4px,6px) rotate(-2deg) scale(.98);--portrait-back:translate(12px,-10px) rotate(4deg) scale(.94)}.portrait-deck{padding:20px 42px 12px}.portrait-gallery figcaption{margin:14px 42px 0;font-size:8px;letter-spacing:1.3px}.portrait-position{letter-spacing:.5px}}
+
+/* Work archives share the portrait exchange motion while preserving full photographs. */
+.portrait-card.is-stowed{visibility:hidden;pointer-events:none}
+.archive-grid--gallery{grid-template-columns:minmax(0,640px) minmax(180px,1fr);gap:48px;align-items:center}
+.work-photo-gallery{min-width:0;--portrait-front:translate(-8px,10px) rotate(-2deg) scale(.98);--portrait-back:translate(18px,-14px) rotate(4deg) scale(.94)}
+.work-photo-gallery .portrait-stage{aspect-ratio:4/3}
+.work-photo-gallery .archive-preview{height:100%;background:var(--site-panel,#faf7f0);cursor:pointer}
+.work-photo-gallery .portrait-card img{width:100%;height:100%;aspect-ratio:auto;object-fit:contain}
+.work-photo-gallery figcaption{margin:16px 56px 0;font-size:11px;letter-spacing:.5px;align-items:baseline}
+.work-photo-gallery .gallery-hint{display:block;margin:8px 56px 0;color:var(--site-muted);font-size:10px}
+@media(max-width:760px){.archive-grid--gallery{grid-template-columns:minmax(0,1fr);gap:28px}.archive-grid .work-photo-gallery{max-width:none}.work-photo-gallery{--portrait-front:translate(-4px,6px) rotate(-2deg) scale(.98);--portrait-back:translate(12px,-10px) rotate(4deg) scale(.94)}.work-photo-gallery .portrait-stage{aspect-ratio:3/4}.work-photo-gallery figcaption{margin:16px 42px 0;font-size:10px}.work-photo-gallery .gallery-hint{margin-left:42px;margin-right:42px}}
+
+.work-photo-gallery .portrait-card{inset:auto}
