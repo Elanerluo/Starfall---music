@@ -28,6 +28,7 @@
 .audio-versions>.media-label{display:block;margin-bottom:14px;color:#748076}
 .recording-version{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:15px 0;border-top:1px solid #26353918}
 .recording-caption{display:grid;gap:5px}.recording-caption>span{font-size:14px;letter-spacing:.6px}.recording-caption>small{font:inherit;font-size:10px;color:#7c877f}
+.recording-caption>.recording-version-note{font-size:12px;line-height:1.8;white-space:pre-line;color:var(--site-muted,#7c877f)}
 .detail-media #audio-area .recording-version .work-play{display:grid;place-items:center;width:40px;height:40px;padding:0;border-radius:5px;color:#597f83;transition:background .2s}
 .detail-media #audio-area .recording-version .work-play:hover,.detail-media #audio-area .recording-version .work-play[data-active=true]{background:#597f8312}
 .recording-version .work-play:focus-visible{outline:1px solid #597f83;outline-offset:2px}

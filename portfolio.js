@@ -42,7 +42,7 @@ else {
  detail.innerHTML=`${preview?'<p class="preview-notice">页面结构预览 · 非真实作品</p>':''}<p class="eyebrow">COMPOSITION / LUO TING${!preview?viewCount(item.id):''}</p><div class="detail-title-wrap"><a class="detail-back" href="works.html" aria-label="返回上一级：完整作品库" title="返回上一级"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg></a><h1 class="detail-title">${escapeHTML(item.title)}</h1></div><dl class="detail-meta"><div><dt>作品类型</dt><dd>${escapeHTML(item.category||'—')}</dd></div><div><dt>创作时间</dt><dd>${escapeHTML(formatDate(item))}</dd></div><div><dt>编制</dt><dd>${escapeHTML(item.instrumentation||'—')}</dd></div><div><dt>时长</dt><dd>${escapeHTML(item.duration||'—')}</dd></div></dl><div class="detail-grid${hasMedia?'':' detail-grid--text-only'}"><div class="detail-description"><p class="eyebrow">ABOUT THE WORK</p><h2>创作说明</h2><p>${escapeHTML(item.description||'创作背景、音乐构思与作品说明待补充。')}</p></div>${mediaBlock}</div>${scoreBlock}${extrasBlock}<a class="text-link" href="works.html">← 返回完整作品库</a>`;
  if(media.audio){
   const versions=Array.isArray(item.audioVersions)?item.audioVersions.filter(version=>safeURL(version.audio)):[];
-  if(versions.length>1){
+  if(versions.length>1||versions.some(version=>version.note)){
    const area=document.querySelector('#audio-area');
    area.className='audio-versions';
    versions.forEach((version,index)=>{
@@ -50,6 +50,7 @@ else {
     const caption=document.createElement('div');caption.className='recording-caption';
     const name=document.createElement('span');name.textContent=version.label||'版本 '+(index+1);
     const note=document.createElement('small');note.textContent=[index===0?'默认版本':'',version.duration].filter(Boolean).join(' · ');caption.append(name,note);
+    if(version.note){const credits=document.createElement('small');credits.className='recording-version-note';credits.textContent=version.note;caption.append(credits);}
     const play=document.createElement('button');play.className='work-play';play.dataset.playWork=item.id;play.dataset.playVersion=version.id;play.dataset.workTitle=item.title+' · '+name.textContent;play.textContent='▷';play.setAttribute('aria-label','播放'+play.dataset.workTitle);play.setAttribute('aria-pressed','false');
     row.append(caption,play);area.append(row);
    });
