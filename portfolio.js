@@ -38,8 +38,7 @@ else {
  const audioBlock=media.audio?'<div id="audio-area"><span class="media-label">01 / 录音</span></div>':'';
  const videoBlock=media.video?'<div id="video-area"><span class="media-label">02 / 影像</span></div>':'';
  const scoreLink=media.score?'<a class="score-jump" href="#score-reader">阅读乐谱 ↓</a>':'';
- const imageLink=pictures.length?`<a class="archive-jump" href="#other-info">查看${escapeHTML(archiveTitle)} ↓</a>`:'';
- const mediaBlock=hasMedia?`<div class="detail-media"><h2>${mediaTitle}</h2>${audioBlock}${videoBlock}${scoreLink}${imageLink}</div>`:'';
+ const mediaBlock=hasMedia?`<div class="detail-media"><h2>${mediaTitle}</h2>${audioBlock}${videoBlock}${scoreLink}</div>`:'';
  const scoreBlock=media.score?'<section id="score-reader" class="score-section" aria-label="作品乐谱"></section>':'';
  const galleryButton=(direction,path)=>`<button type="button" class="portrait-nav portrait-nav--${direction==='previous'?'previous':'next'}" data-portrait-${direction} aria-label="${direction==='previous'?'上一张':'下一张'}作品图片"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${path}"/></svg></button>`;
  const pictureBlock=multiplePictures?`<figure class="portrait-gallery work-photo-gallery" id="work-photo-gallery" role="group" aria-roledescription="照片切换" aria-label="${escapeHTML(archiveTitle)}"><div class="portrait-deck">${galleryButton('previous','m15 5-10 7 10 7Z')}<div class="portrait-stage">${pictures.map((picture,index)=>`<div class="portrait-card ${index===0?'is-front':index===1?'is-back':'is-stowed'}" data-portrait-card data-caption="${escapeHTML(picture.caption||archiveTitle)}" aria-hidden="${index!==0}"><button type="button" class="archive-preview" data-photo-open="${index}" aria-label="放大查看${escapeHTML(picture.caption||archiveTitle)}"><img src="${escapeHTML(picture.image)}" alt="${escapeHTML(item.title+' · '+(picture.caption||archiveTitle))}" loading="lazy" decoding="async" draggable="false"></button></div>`).join('')}</div>${galleryButton('next','m9 5 10 7-10 7Z')}</div><figcaption><span data-photo-caption>${escapeHTML(pictures[0].caption||archiveTitle)}</span><span class="portrait-position" data-portrait-position aria-hidden="true">01 / ${String(pictures.length).padStart(2,'0')}</span></figcaption><span class="portrait-status" data-portrait-status role="status" aria-live="polite"></span><small class="gallery-hint">点击照片查看大图 ↗</small></figure>`:pictures.length?`<figure><button type="button" class="archive-preview" id="manuscript-open" aria-label="放大查看${escapeHTML(archiveTitle)}"><img src="${escapeHTML(pictures[0].image)}" alt="${escapeHTML(item.title+'的'+archiveTitle)}" loading="lazy" decoding="async"></button><figcaption>点击查看大图 ↗</figcaption></figure>`:'';
@@ -48,22 +47,19 @@ else {
  detail.innerHTML=`${preview?'<p class="preview-notice">页面结构预览 · 非真实作品</p>':''}<p class="eyebrow">COMPOSITION / LUO TING${!preview?viewCount(item.id):''}</p><div class="detail-title-wrap"><a class="detail-back" href="works.html" aria-label="返回上一级：完整作品库" title="返回上一级"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg></a><h1 class="detail-title">${escapeHTML(item.title)}</h1></div><dl class="detail-meta"><div><dt>作品类型</dt><dd>${escapeHTML(item.category||'—')}</dd></div><div><dt>创作时间</dt><dd>${escapeHTML(formatDate(item))}</dd></div><div><dt>编制</dt><dd>${escapeHTML(item.instrumentation||'—')}</dd></div><div><dt>时长</dt><dd>${escapeHTML(item.duration||'—')}</dd></div></dl><div class="detail-grid${hasMedia?'':' detail-grid--text-only'}"><div class="detail-description"><p class="eyebrow">ABOUT THE WORK</p><h2>创作说明</h2><p>${escapeHTML(item.description||'创作背景、音乐构思与作品说明待补充。')}</p></div>${mediaBlock}</div>${scoreBlock}${extrasBlock}<a class="text-link" href="works.html">← 返回完整作品库</a>`;
  if(media.audio){
   const versions=Array.isArray(item.audioVersions)?item.audioVersions.filter(version=>safeURL(version.audio)):[];
-  if(versions.length>1||versions.some(version=>version.note)){
-   const area=document.querySelector('#audio-area');
-   area.className='audio-versions';
-   versions.forEach((version,index)=>{
+  const multipleVersions=versions.length>1;
+  const recordings=versions.length?versions:[{audio:media.audio,duration:item.duration}];
+  const area=document.querySelector('#audio-area');
+  area.className='audio-versions';
+  recordings.forEach((version,index)=>{
     const row=document.createElement('div');row.className='recording-version';
     const caption=document.createElement('div');caption.className='recording-caption';
-    const name=document.createElement('span');name.textContent=version.label||'版本 '+(index+1);
-    const note=document.createElement('small');note.textContent=[index===0?'默认版本':'',version.duration].filter(Boolean).join(' · ');caption.append(name,note);
+    const name=document.createElement('span');name.textContent=multipleVersions?(version.label||'版本 '+(index+1)):item.title;
+    const note=document.createElement('small');note.textContent=[multipleVersions&&index===0?'默认版本':'',version.duration||(index===0?item.duration:'')].filter(Boolean).join(' · ');caption.append(name,note);
     if(version.note){const credits=document.createElement('small');credits.className='recording-version-note';credits.textContent=version.note;caption.append(credits);}
-    const play=document.createElement('button');play.className='work-play';play.dataset.playWork=item.id;play.dataset.playVersion=version.id;play.dataset.workTitle=item.title+' · '+name.textContent;play.textContent='▷';play.setAttribute('aria-label','播放'+play.dataset.workTitle);play.setAttribute('aria-pressed','false');
+    const play=document.createElement('button');play.className='work-play';play.dataset.playWork=item.id;if(version.id)play.dataset.playVersion=version.id;play.dataset.workTitle=multipleVersions?item.title+' · '+name.textContent:item.title;play.textContent='▷';play.setAttribute('aria-label','播放'+play.dataset.workTitle);play.setAttribute('aria-pressed','false');
     row.append(caption,play);area.append(row);
-   });
-  }else{
-  const button=document.createElement('button');button.className='work-play';button.dataset.playWork=item.id;button.dataset.workTitle=item.title;button.textContent='▷';button.setAttribute('aria-label','播放'+item.title);
-  document.querySelector('#audio-area').append(button,document.createTextNode(' 在全站播放器中聆听'));
-  }
+  });
  }
  if(media.video){
   const video=document.createElement('video');video.controls=true;video.setAttribute('controlslist','nodownload');video.preload='metadata';video.src=media.video;video.setAttribute('aria-label',item.title+'影像');const area=document.querySelector('#video-area');area.append(video);window.unmountWorkVideo=window.enhanceWorkVideo?.(video,area,item.title);
