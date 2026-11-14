@@ -10,16 +10,17 @@ function pdfLibrary(){
  }).catch(error=>{library=null;throw error;});
 }
 window.unmountScoreReader=()=>{active?.();active=null;};
-window.mountScoreReader=(root,{url,title,demo=false})=>{
+window.mountScoreReader=(root,{url,title,demo=false,kind='score'})=>{
+ const isLyrics=kind==='lyrics',noun=isLyrics?'歌词':'乐谱',focusText=isLyrics?'专注阅读':'专注读谱';
  window.unmountScoreReader();
  root.dataset.scoreState='empty';
- root.innerHTML=`<div class="score-heading"><div><p class="eyebrow">03 / SCORE</p><h2>随声阅读</h2></div><p>让声音与音符，一同展开。</p></div>
- <div class="score-reader" role="region" aria-label="PDF 乐谱阅读器">
-  <div class="score-toolbar"><div class="score-document-title">${glyph('document')}<span class="score-filename"></span></div><div class="score-navigation"><div class="score-pagination"><button type="button" data-previous aria-label="上一页" title="上一页">${glyph('previous')}</button><label><input data-page type="number" min="1" value="1" inputmode="numeric" aria-label="乐谱页码"><span class="score-page-end" data-page-end hidden></span><span class="score-page-divider">/</span><span data-total>—</span></label><button type="button" data-next aria-label="下一页" title="下一页">${glyph('next')}</button></div><span class="score-tool-divider" aria-hidden="true"></span><div class="score-zoom"><button type="button" data-out aria-label="缩小乐谱" title="缩小">${glyph('minus')}</button><select data-zoom aria-label="乐谱缩放"><option value="width">适合宽度</option><option value="page" selected>整页显示</option><option value="0.75">75%</option><option value="1">100%</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="2">200%</option></select><button type="button" data-in aria-label="放大乐谱" title="放大">${glyph('plus')}</button></div></div><div class="score-tools"><button type="button" class="score-view-toggle" data-view-mode aria-label="切换为双页横向阅读" title="切换为双页横向阅读" aria-pressed="false">${glyph('single')}<span>单页</span></button><button type="button" data-reader-theme title="切换氛围" aria-label="切换氛围">${glyph('sun')}</button><button type="button" data-focus aria-label="专注读谱" title="专注读谱" aria-pressed="false">${glyph('expand')}</button></div><span class="score-progress" aria-hidden="true"></span></div>
+ root.innerHTML=`<div class="score-heading"><div><p class="eyebrow">03 / ${isLyrics?'LYRICS':'SCORE'}</p><h2>随声阅读</h2></div><p>${isLyrics?'让歌声与文字，一同展开。':'让声音与音符，一同展开。'}</p></div>
+ <div class="score-reader" role="region" aria-label="PDF ${noun}阅读器">
+  <div class="score-toolbar"><div class="score-document-title">${glyph('document')}<span class="score-filename"></span></div><div class="score-navigation"><div class="score-pagination"><button type="button" data-previous aria-label="上一页" title="上一页">${glyph('previous')}</button><label><input data-page type="number" min="1" value="1" inputmode="numeric" aria-label="${noun}页码"><span class="score-page-end" data-page-end hidden></span><span class="score-page-divider">/</span><span data-total>—</span></label><button type="button" data-next aria-label="下一页" title="下一页">${glyph('next')}</button></div><span class="score-tool-divider" aria-hidden="true"></span><div class="score-zoom"><button type="button" data-out aria-label="缩小${noun}" title="缩小">${glyph('minus')}</button><select data-zoom aria-label="${noun}缩放"><option value="width">适合宽度</option><option value="page" selected>整页显示</option><option value="0.75">75%</option><option value="1">100%</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="2">200%</option></select><button type="button" data-in aria-label="放大${noun}" title="放大">${glyph('plus')}</button></div></div><div class="score-tools"><button type="button" class="score-view-toggle" data-view-mode aria-label="切换为双页横向阅读" title="切换为双页横向阅读" aria-pressed="false">${glyph('single')}<span>单页</span></button><button type="button" data-reader-theme title="切换氛围" aria-label="切换氛围">${glyph('sun')}</button><button type="button" data-focus aria-label="${focusText}" title="${focusText}" aria-pressed="false">${glyph('expand')}</button></div><span class="score-progress" aria-hidden="true"></span></div>
   <p class="score-status" role="status" aria-live="polite"></p>
-  <form class="score-password" hidden><label>PDF 打开密码 <input type="password" autocomplete="off" required></label><button type="submit">打开乐谱</button></form>
-  <div class="score-viewport" tabindex="0" aria-label="乐谱页面，可滚动阅读"><div class="score-empty"><span aria-hidden="true">♮</span><h3>等待展开的乐谱</h3><p>这部作品的乐谱尚未收录。</p></div></div>
-  <div class="score-footer"><span class="score-reader-note">${demo?'<span data-demo-note>演示文档 · 非本曲乐谱</span>':'滚动阅读 · ← → 翻页'}</span><span class="score-access"><i aria-hidden="true"></i>在线阅览</span></div>
+  <form class="score-password" hidden><label>PDF 打开密码 <input type="password" autocomplete="off" required></label><button type="submit">打开${noun}</button></form>
+  <div class="score-viewport" tabindex="0" aria-label="${noun}页面，可滚动阅读"><div class="score-empty"><span aria-hidden="true">♮</span><h3>等待展开的${noun}</h3><p>这部作品的${noun}尚未收录。</p></div></div>
+  <div class="score-footer"><span class="score-reader-note">${demo?'<span data-demo-note>演示文档 · 非本曲'+noun+'</span>':'滚动阅读 · ← → 翻页'}</span><span class="score-access"><i aria-hidden="true"></i>在线阅览</span></div>
  </div>`;
  const get=selector=>root.querySelector(selector);
  const viewport=get('.score-viewport'),pageInput=get('[data-page]'),total=get('[data-total]'),zoom=get('[data-zoom]'),status=get('.score-status'),filename=get('.score-filename'),focusButton=get('[data-focus]'),themeButton=get('[data-reader-theme]');
@@ -28,14 +29,14 @@ window.mountScoreReader=(root,{url,title,demo=false})=>{
  let disposed=false,request=0,revision=0,loadingTask,documentPDF,renderTask,intersection,rendering=false,queue=new Set(),nodes=[],spreads=[],pagesHost,pageNumber=1,base={width:595,height:842},scale=1,frame=0,layoutFrame=0,playerObserver,savedScroll,updatePassword;
  let viewMode=window.portfolioScoreView==='spread'?'spread':'single',wheelFrame=0,wheelTarget=0;
  const sizes=new Map();
- filename.textContent=title+' · 乐谱';
+ filename.textContent=title+' · '+noun;
  function syncView(){
   root.dataset.scoreView=viewMode;const horizontal=viewMode==='spread';
   viewButton.innerHTML=glyph(horizontal?'spread':'single')+'<span>'+(horizontal?'双页':'单页')+'</span>';
   viewButton.setAttribute('aria-pressed',String(horizontal));
   const label=horizontal?'当前双页横向，切换为单页竖向阅读':'当前单页竖向，切换为双页横向阅读';viewButton.setAttribute('aria-label',label);viewButton.title=label;
   zoom.options[0].textContent=horizontal?'适合双页':'适合宽度';
-  viewport.setAttribute('aria-label',horizontal?'乐谱双页横向阅读，滚轮向下查看后页':'乐谱单页竖向阅读');
+  viewport.setAttribute('aria-label',horizontal?`${noun}双页横向阅读，滚轮向下查看后页`:`${noun}单页竖向阅读`);
   if(!demo)get('.score-reader-note').textContent=horizontal?'滚轮向下看后页 · ← → 翻页':'竖向滚动 · ← → 翻页';
  }
  function ready(value){controls.forEach(control=>control.disabled=!value);if(value){previous.disabled=pageNumber<=1;next.disabled=pageNumber+(viewMode==='spread'?1:0)>=documentPDF.numPages;}}
@@ -135,7 +136,7 @@ window.mountScoreReader=(root,{url,title,demo=false})=>{
   const serial=++request;
   unload();ready(false);pageNumber=1;pageInput.value=1;total.textContent='—';
   root.dataset.scoreState='loading';root.style.setProperty('--score-progress','0%');
-  filename.textContent=name;status.textContent='正在打开乐谱…';viewport.setAttribute('aria-busy','true');viewport.replaceChildren();
+  filename.textContent=name;status.textContent='正在打开'+noun+'…';viewport.setAttribute('aria-busy','true');viewport.replaceChildren();
   try{
    const pdf=await pdfLibrary();
    if(disposed||serial!==request)return;
@@ -159,13 +160,13 @@ window.mountScoreReader=(root,{url,title,demo=false})=>{
   }catch(error){
    if(disposed||serial!==request)return;
    viewport.removeAttribute('aria-busy');passwordForm.hidden=true;
-   root.dataset.scoreState='error';status.textContent=error.name==='InvalidPDFException'?'这份乐谱暂时无法解析，请稍后重试。':'乐谱暂时无法打开，请稍后重试。';
+   root.dataset.scoreState='error';status.textContent=error.name==='InvalidPDFException'?'这份'+noun+'暂时无法解析，请稍后重试。':noun+'暂时无法打开，请稍后重试。';
    ready(false);
   }
  }
  function resize(){cancelAnimationFrame(layoutFrame);layoutFrame=requestAnimationFrame(layout);}
  function focusMode(enabled){
-  focusButton.setAttribute('aria-pressed',String(enabled));focusButton.innerHTML=glyph(enabled?'collapse':'expand');focusButton.setAttribute('aria-label',enabled?'退出专注':'专注读谱');focusButton.title=enabled?'退出专注 · Esc':'专注读谱';
+  focusButton.setAttribute('aria-pressed',String(enabled));focusButton.innerHTML=glyph(enabled?'collapse':'expand');focusButton.setAttribute('aria-label',enabled?'退出专注':focusText);focusButton.title=enabled?'退出专注 · Esc':focusText;
   if(enabled){
    savedScroll={top:window.scrollY,left:window.scrollX};root.classList.add('score-focused');document.body.classList.add('score-reading');
    const player=document.querySelector('.persistent-player');
@@ -182,7 +183,7 @@ window.mountScoreReader=(root,{url,title,demo=false})=>{
   if(![...zoom.options].some(option=>option.value===value)){zoom.querySelector('[data-custom]')?.remove();const option=new Option(Math.round(Number(value)*100)+'%',value);option.dataset.custom='true';zoom.add(option);}
   zoom.value=value;layout();
  }
- passwordForm.onsubmit=event=>{event.preventDefault();updatePassword?.(passwordForm.querySelector('input').value);passwordForm.querySelector('input').value='';status.textContent='正在打开乐谱…';};
+ passwordForm.onsubmit=event=>{event.preventDefault();updatePassword?.(passwordForm.querySelector('input').value);passwordForm.querySelector('input').value='';status.textContent='正在打开'+noun+'…';};
  previous.onclick=()=>jump(pageNumber-(viewMode==='spread'?2:1));next.onclick=()=>jump(pageNumber+(viewMode==='spread'?2:1));
  pageInput.onchange=()=>jump(Number(pageInput.value));pageInput.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();jump(Number(pageInput.value));pageInput.blur();}};
  zoom.onchange=layout;zoomIn.onclick=()=>stepZoom(1.2);zoomOut.onclick=()=>stepZoom(1/1.2);
@@ -220,6 +221,6 @@ window.mountScoreReader=(root,{url,title,demo=false})=>{
   disposed=true;request++;unload();
   cancelAnimationFrame(frame);cancelAnimationFrame(layoutFrame);resizeObserver.disconnect();playerObserver?.disconnect();themeObserver.disconnect();viewport.removeEventListener('wheel',wheel);document.removeEventListener('keydown',escape);document.removeEventListener('keydown',restrictSave);root.classList.remove('score-focused');document.body.classList.remove('score-reading');
  };
- if(url)openPDF(url,demo?'PDF 阅读器演示文档':title+' · 乐谱');
+ if(url)openPDF(url,demo?'PDF 阅读器演示文档':title+' · '+noun);
 };
 })();
